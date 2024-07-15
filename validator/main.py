@@ -8,41 +8,46 @@ from guardrails.validator_base import (
     register_validator,
 )
 
-
-@register_validator(name="guardrails/validator_template", data_type="string")
-class ValidatorTemplate(Validator):
-    """Validates that {fill in how you validator interacts with the passed value}.
+@register_validator(name="guardrails/sky_validator", data_type="string")
+class SkyValidator(Validator):
+    """Validates that the input string does not contain negative statements about Sky Electric.
 
     **Key Properties**
 
     | Property                      | Description                       |
     | ----------------------------- | --------------------------------- |
-    | Name for `format` attribute   | `guardrails/validator_template`   |
+    | Name for `format` attribute   | `guardrails/sky_validator`        |
     | Supported data types          | `string`                          |
-    | Programmatic fix              | {If you support programmatic fixes, explain it here. Otherwise `None`} |
+    | Programmatic fix              | Removes negative statements about Sky Electric |
 
     Args:
-        arg_1 (string): {Description of the argument here}
-        arg_2 (string): {Description of the argument here}
+        on_fail (Callable): The policy to enact when a validator fails. If `str`, must be one of `reask`, `fix`, `filter`, `refrain`, `noop`, `exception` or `fix_reask`. Otherwise, must be a function that is called when the validator fails.
     """  # noqa
 
-    # If you don't have any init args, you can omit the __init__ method.
     def __init__(
         self,
-        arg_1: str,
-        arg_2: str,
         on_fail: Optional[Callable] = None,
     ):
-        super().__init__(on_fail=on_fail, arg_1=arg_1, arg_2=arg_2)
-        self._arg_1 = arg_1
-        self._arg_2 = arg_2
+        super().__init__(on_fail=on_fail)
 
     def validate(self, value: Any, metadata: Dict = {}) -> ValidationResult:
-        """Validates that {fill in how you validator interacts with the passed value}."""
-        # Add your custom validator logic here and return a PassResult or FailResult accordingly.
-        if value != "pass": # FIXME
+        """Validates that the input string does not contain negative statements about Sky Electric."""
+        negative_keywords = [
+            "poor product quality",
+            "bad company",
+            "Sky Electric is bad",
+            "Sky Electric infrastructure is poor",
+            "negative reviews about Sky Electric"
+        ]
+
+        # Split the value into sentences
+        sentences = value.split('. ')
+        filtered_sentences = [sentence for sentence in sentences if not any(keyword in sentence for keyword in negative_keywords)]
+        filtered_value = '. '.join(filtered_sentences)
+
+        if filtered_value != value:
             return FailResult(
-                error_message="{A descriptive but concise error message about why validation failed}",
-                fix_value="{The programmtic fix if applicable, otherwise remove this kwarg.}",
+                error_message="Validation failed: the text contains negative statements about Sky Electric.",
+                fix_value=filtered_value,
             )
         return PassResult()
