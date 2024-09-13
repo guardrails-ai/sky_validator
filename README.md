@@ -19,7 +19,7 @@ This validator checks for negative statements about Sky Electric in the output. 
 	- guardrails-ai>=0.4.0
 
 * Foundation model access keys:
-	- {Include any access environment variables you need here like OPENAI_API_KEY}
+	- Include any access environment variables you need here like OPENAI_API_KEY
 
 ## Installation
 
